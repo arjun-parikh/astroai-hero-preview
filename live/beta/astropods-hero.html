@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astro — product hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-indigo-500:oklch(58.4% .2055 274.722);
+  --color-indigo-600:oklch(51.05% .2306 274.785);
+  --color-indigo-700:oklch(45.68% .2115 274.96);
+  --color-slate-50:oklch(98.42% .0034 247.858);
+  --color-slate-100:oklch(96.83% .0069 247.896);
+  --color-slate-200:oklch(92.88% .0126 253.4);
+  --color-slate-300:oklch(86.9% .0198 252.894);
+  --color-slate-500:oklch(55.44% .0407 257.417);
+  --color-slate-600:oklch(44.55% .0374 257.281);
+  --color-slate-800:oklch(27.95% .0368 260.031);
+  --color-slate-900:oklch(20.77% .0398 265.755);
+  --color-slate-950:oklch(12.88% .0406 264.695);
+  --font-sans:"Geist","Geist Variable",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace;
+
+  /* chrome — light */
+  --page-bg:var(--color-slate-100);
+  --chrome:#fff;
+  --chrome-2:var(--color-slate-50);
+  --chrome-fg:var(--color-slate-950);
+  --chrome-muted:var(--color-slate-600);
+  --chrome-border:color-mix(in oklch, var(--color-slate-300) 60%, transparent);
+  --primary:var(--color-indigo-600);
+  --active-bg:color-mix(in oklch, var(--color-indigo-600) 10%, transparent);
+  --hover-bg:color-mix(in oklch, var(--color-slate-500) 8%, transparent);
+  --shadow:0 40px 80px -32px oklch(20.77% .0398 265.755 / .35), 0 8px 24px -12px oklch(0% 0 0 / .25);
+}
+html[data-theme="dark"]{
+  --page-bg:var(--color-slate-950);
+  --chrome:var(--color-slate-900);
+  --chrome-2:var(--color-slate-800);
+  --chrome-fg:var(--color-slate-100);
+  --chrome-muted:var(--color-slate-300);
+  --chrome-border:#cbd5e11f;
+  --primary:var(--color-indigo-500);
+  --active-bg:color-mix(in oklch, var(--color-indigo-500) 20%, transparent);
+  --hover-bg:#cbd5e114;
+  --shadow:0 40px 90px -32px #000, 0 8px 24px -12px #000;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+/* Embedded in the homepage hero: transparent shell so only the window shows on
+   the dot-wave field; the window fills the frame (no outer box, no centering). */
+body{margin:0;font-family:var(--font-sans);background:transparent;color:var(--chrome-fg);
+  -webkit-font-smoothing:antialiased;padding:14px;
+  transition:background .3s ease}
+
+/* ===== window frame ===== */
+.window{width:100%;height:100%;max-width:none;background:var(--chrome);border:1px solid var(--chrome-border);
+  border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+
+/* titlebar */
+.titlebar{display:flex;align-items:center;gap:16px;height:46px;padding:0 16px;
+  background:var(--chrome-2);border-bottom:1px solid var(--chrome-border)}
+.lights{display:flex;gap:8px;flex:none}
+.lights i{width:12px;height:12px;border-radius:50%;display:block}
+.lights i:nth-child(1){background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}
+.lights i:nth-child(3){background:#28c840}
+.urlbar{flex:1;max-width:420px;margin:0 auto;height:28px;display:flex;align-items:center;
+  justify-content:center;gap:8px;padding:0 14px;border-radius:999px;
+  background:var(--chrome);border:1px solid var(--chrome-border);
+  font-family:var(--font-mono);font-size:12px;color:var(--chrome-muted)}
+.urlbar svg{flex:none;color:var(--chrome-muted)}
+.theme-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:8px;border:1px solid var(--chrome-border);
+  background:var(--chrome);color:var(--chrome-fg);cursor:pointer;transition:background .15s ease}
+.theme-btn:hover{background:var(--hover-bg)}
+
+/* body: view — fills the remaining window height below the titlebar */
+.frame{display:flex;flex:1;min-height:0}
+.viewport{flex:1;position:relative;overflow:hidden;background:var(--chrome)}
+/* iframe fills the window; the embedded page's own top nav is the primary navigation */
+.viewport iframe{width:100%;height:100%;border:0;display:block;
+  opacity:1;transition:opacity .22s ease}
+.viewport.loading iframe{opacity:0}
+
+@media(max-width:720px){
+  body{padding:10px}
+  .titlebar{padding:0 10px;gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <div class="lights"><i></i><i></i><i></i></div>
+    <div class="urlbar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span id="url">app.astropods.com/agents</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </div>
+
+  <div class="frame">
+    <div class="viewport" id="viewport">
+      <iframe id="screen" title="Astro app screen" src="astropods-agents-page.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  // moon shown in light mode (click → go dark); sun shown in dark mode
+  moon:'<circle cx="12" cy="12" r="0" fill="none"/><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+};
+const root = document.documentElement;
+const screen = document.getElementById('screen');
+const viewport = document.getElementById('viewport');
+const url = document.getElementById('url');
+const themeIcon = document.getElementById('themeIcon');
+// Defaults can be overridden per-embed via ?view=&theme= query params.
+const params = new URLSearchParams(location.search);
+const qView = params.get('view');
+const qTheme = params.get('theme');
+let state = {
+  view: ['agents','blueprints','insights','chat','knowledge'].includes(qView) ? qView : 'agents',
+  theme: (qTheme === 'light' || qTheme === 'dark') ? qTheme : 'dark'
+};
+
+function srcFor(v, t){ return `astropods-${v}-page${t==='dark'?'-dark':''}.html`; }
+
+function render(){
+  root.dataset.theme = state.theme;
+  themeIcon.innerHTML = state.theme==='dark' ? ICONS.sun : ICONS.moon;
+  url.textContent = `app.astropods.com/${state.view}`;
+  const next = srcFor(state.view, state.theme);
+  if (screen.getAttribute('src') !== next){
+    viewport.classList.add('loading');
+    screen.src = next;
+  }
+}
+screen.addEventListener('load', () => viewport.classList.remove('loading'));
+
+// Navigation now lives in the embedded page's top nav: each app page posts
+// {astroView:'agents'|'blueprints'|'insights'} up to the shell on link click.
+window.addEventListener('message', e => {
+  const v = e.data && e.data.astroView;
+  if (v && ['agents','blueprints','insights','chat','knowledge'].includes(v) && v !== state.view){
+    state.view = v; render();
+  }
+  // Homepage light/dark toggle drives the mockup theme (loads light/dark app pages).
+  const t = e.data && e.data.astroTheme;
+  if ((t === 'light' || t === 'dark') && t !== state.theme){
+    state.theme = t; render();
+  }
+});
+document.getElementById('themeBtn').addEventListener('click', () => {
+  state.theme = state.theme==='dark' ? 'light' : 'dark'; render();
+});
+
+render();
+</script>
+<!-- Cloudflare Pages Analytics --></body>
+</html>
